@@ -1,0 +1,89 @@
+{
+    "node_id": 99,
+    "interface": "vcan0",
+    "connections": [
+        {
+            "type": "Diagnostic",
+            "cyphal": {
+                "port": 8184
+            },
+            "ros": {
+                "type": "topic",
+                "direction": "bi",
+                "name": "/diagnostic"
+            }
+        },
+        {
+            "type": "HMI.Led",
+            "cyphal": {
+                "port": 172,
+                "node": 13
+            },
+            "ros": {
+                "type": "service",
+                "name": "/hmi/led"
+            }
+        },
+        {
+            "type": "Boolean",
+            "ros": {
+                "type": "service",
+                "name": "/node13/storage/static_value"
+            },
+            "cyphal": {
+                "register": "storage.static_value",
+                "node": 13
+            }
+        },
+        {
+            "type": "Float32",
+            "ros": {
+                "type": "service",
+                "name": "/node13/storage/streamin_value"
+            },
+            "cyphal": {
+                "register": "storage.streaming_value",
+                "node": 13
+            }
+        },
+        {
+            "type": "Angle",
+            "cyphal": {
+                "port": {
+                    "read": 6998,
+                    "write": 7011
+                },
+                "node": 13
+            },
+            "ros": {
+                "type": "topic",
+                "direction": "bi",
+                "name": "/node13/angle"
+            }
+        },
+        {
+            "type": "AngularVelocity",
+            "cyphal": {
+                "port": 6800,
+                "node": 13
+            },
+            "ros": {
+                "type": "topic",
+                "direction": "read",
+                "name": "/node13/angular_velocity"
+            }
+        },
+        {
+            "type": "Velocity",
+            "cyphal": {
+                "port": 6700,
+                "node": 13
+            },
+            "ros": {
+                "type": "topic",
+                "direction": "read",
+                "name": "/node13/velocity"
+            }
+        }
+    ]
+}
