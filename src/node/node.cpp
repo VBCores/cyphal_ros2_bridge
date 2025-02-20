@@ -1,5 +1,6 @@
 #include "node.h"
 
+#include <fstream>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -17,7 +18,14 @@ using namespace std::chrono_literals;
 
 TYPE_ALIAS(HBeat, uavcan_node_Heartbeat_1_0)
 
-BridgeNode::BridgeNode(const rclcpp::NodeOptions& options, const json& config_json): Node("cyphal_bridge", options) {
+BridgeNode::BridgeNode(const rclcpp::NodeOptions& options): Node("cyphal_bridge", options) {
+    const std::string config_param_name = "config_file";
+    declare_parameter(config_param_name, "");
+    std::string config_file_name = this->get_parameter(config_param_name).as_string();
+    RCLCPP_INFO_STREAM(get_logger(), "Using <" << config_file_name << ">");
+    std::ifstream config_file_stream(config_file_name);
+    json config_json = json::parse(config_file_stream);
+
     const CanardNodeID node_id = config_json.at("node_id");
     const std::string& interface_name = config_json.at("interface");
     RCLCPP_INFO_STREAM(

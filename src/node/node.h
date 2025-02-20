@@ -41,7 +41,7 @@ private:
     void parsing_error(const std::string& error);
 
 public:
-    BridgeNode(const rclcpp::NodeOptions& options, const json& config_json);
+    BridgeNode(const rclcpp::NodeOptions& options);
     ~BridgeNode();
 };
 
