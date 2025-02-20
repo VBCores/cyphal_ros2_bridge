@@ -41,10 +41,11 @@ target_include_directories(cyphal_bridge PUBLIC
     libs/libvoltbro
     libs/nlohmann
     ${CYPHAL_DIR}
+    ${COMMON_LIBS_DIR}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
-link_libraries(
+target_link_libraries(cyphal_bridge
     libcxxcanard
 )
 target_compile_features(cyphal_bridge PUBLIC c_std_99 cxx_std_17)
