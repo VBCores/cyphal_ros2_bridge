@@ -193,7 +193,6 @@ void BridgeNode::add_connection(const json& connection) {
         << ">"
     );
 
-    /*
     bool type_found = false;
     if (ros_type == ROSType::TOPIC) {
         if (ros_direction == ROSDirection::READ || ros_direction == ROSDirection::BI) {
@@ -256,5 +255,4 @@ void BridgeNode::add_connection(const json& connection) {
             ", is_register: " + (has_register_name ? "true" : "false") + ">"
         );
     }
-    */
 }

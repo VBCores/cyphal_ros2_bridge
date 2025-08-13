@@ -22,12 +22,14 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/HMIBeeper.msg"
     "msg/HMILed.msg"
+    "msg/PowerButtons.msg"
     "srv/CallHMIBeeper.srv"
     "srv/CallHMILed.srv"
 )
@@ -49,9 +51,13 @@ target_link_libraries(cyphal_bridge
     libcxxcanard
 )
 target_compile_features(cyphal_bridge PUBLIC c_std_99 cxx_std_17)
-ament_target_dependencies(cyphal_bridge rclcpp std_msgs sensor_msgs nav_msgs rosidl_default_generators)
+ament_target_dependencies(cyphal_bridge rclcpp std_msgs sensor_msgs nav_msgs diagnostic_msgs rosidl_default_generators)
+rosidl_target_interfaces(cyphal_bridge
+    ${PROJECT_NAME} "rosidl_typesupport_cpp"
+)
 
 install(TARGETS cyphal_bridge DESTINATION lib/${PROJECT_NAME})
 install(TARGETS libcxxcanard LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
+ament_export_dependencies(rosidl_default_runtime)
 ament_package()
