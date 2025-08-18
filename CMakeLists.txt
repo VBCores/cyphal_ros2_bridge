@@ -5,6 +5,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    add_compile_options(-g -O0)
+endif()
+
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
@@ -47,17 +55,26 @@ target_include_directories(cyphal_bridge PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
-target_link_libraries(cyphal_bridge
-    libcxxcanard
-)
+
 target_compile_features(cyphal_bridge PUBLIC c_std_99 cxx_std_17)
 ament_target_dependencies(cyphal_bridge rclcpp std_msgs sensor_msgs nav_msgs diagnostic_msgs rosidl_default_generators)
-rosidl_target_interfaces(cyphal_bridge
-    ${PROJECT_NAME} "rosidl_typesupport_cpp"
+rosidl_get_typesupport_target(cpp_typesupport_target "${PROJECT_NAME}" "rosidl_typesupport_cpp")
+
+target_link_libraries(cyphal_bridge
+    libcxxcanard
+    "${cpp_typesupport_target}"
 )
 
 install(TARGETS cyphal_bridge DESTINATION lib/${PROJECT_NAME})
 install(TARGETS libcxxcanard LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+install(
+  DIRECTORY examples
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_export_dependencies(rosidl_default_runtime)
 ament_package()
