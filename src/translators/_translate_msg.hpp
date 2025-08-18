@@ -11,6 +11,9 @@
 #include <uavcan/si/unit/velocity/Scalar_1_0.h>
 #include <std_msgs/msg/float32.hpp>
 
+#include <uavcan/primitive/scalar/Integer32_1_0.h>
+#include <std_msgs/msg/int32.hpp>
+
 #include <voltbro/battery/state_1_0.h>
 #include <sensor_msgs/msg/battery_state.hpp>
 
@@ -26,6 +29,7 @@
 #include <uavcan/diagnostic/Record_1_1.h>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
+TYPE_ALIAS(Integer32, uavcan_primitive_scalar_Integer32_1_0)
 TYPE_ALIAS(Real32, uavcan_primitive_scalar_Real32_1_0)
 TYPE_ALIAS(Velocity, uavcan_si_unit_velocity_Scalar_1_0)
 TYPE_ALIAS(AngularVelocity, uavcan_si_unit_angular_velocity_Scalar_1_0)
@@ -106,6 +110,24 @@ inline std_msgs::msg::Float32 translate_cyphal_msg(
     const std::shared_ptr<Real32::Type>& cyphal_msg, CanardRxTransfer* /*transfer*/
 ) {
     auto ros_msg = std_msgs::msg::Float32();
+    ros_msg.data = cyphal_msg->value;
+    return ros_msg;
+}
+
+// ---------- Scalar Integer32 <-> Int32 ----------
+
+template <>
+inline Integer32::Type translate_ros_msg(const std::shared_ptr<std_msgs::msg::Int32>& ros_msg) {
+    auto cyphal_msg = Integer32::Type();
+    cyphal_msg.value = ros_msg->data;
+    return cyphal_msg;
+}
+
+template <>
+inline std_msgs::msg::Int32 translate_cyphal_msg(
+    const std::shared_ptr<Integer32::Type>& cyphal_msg, CanardRxTransfer* /*transfer*/
+) {
+    auto ros_msg = std_msgs::msg::Int32();
     ros_msg.data = cyphal_msg->value;
     return ros_msg;
 }

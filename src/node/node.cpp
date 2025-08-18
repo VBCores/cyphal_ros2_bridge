@@ -24,7 +24,7 @@ BridgeNode::BridgeNode(const rclcpp::NodeOptions& options): Node("cyphal_bridge"
     std::string config_file_name = this->get_parameter(config_param_name).as_string();
     RCLCPP_INFO_STREAM(get_logger(), "Using <" << config_file_name << ">");
     std::ifstream config_file_stream(config_file_name);
-    json config_json = json::parse(config_file_stream);
+    config_json = json::parse(config_file_stream);
 
     const CanardNodeID node_id = config_json.at("node_id");
     const std::string& interface_name = config_json.at("interface");
@@ -33,20 +33,27 @@ BridgeNode::BridgeNode(const rclcpp::NodeOptions& options): Node("cyphal_bridge"
         "Setting up cyphal with <node_id: " << +node_id << ", interface: " << interface_name << ">"
     );
 
-    hbeat_timer = create_wall_timer(1000ms, std::bind(&BridgeNode::hbeat_cb, this));
-
     interface = std::shared_ptr<CyphalInterface>(CyphalInterface::create_heap<LinuxCAN, O1Allocator>(
         node_id,
         interface_name,
         1000,
         DEFAULT_CONFIG
     ));
+}
 
-    for (const json& connection: config_json.at("connections")) {
-        add_connection(connection);
+std::shared_ptr<BridgeNode> BridgeNode::create_bridge(const rclcpp::NodeOptions& options) {
+    auto bridge_node = new BridgeNode(options);
+
+    // needed to allocate a control block for shared_from_this
+    auto shared_bridge_ptr = std::shared_ptr<BridgeNode>(bridge_node);
+
+    for (const json& connection: bridge_node->config_json.at("connections")) {
+        bridge_node->add_connection(connection);
     }
+    bridge_node->hbeat_timer = bridge_node->create_wall_timer(1000ms, std::bind(&BridgeNode::hbeat_cb, bridge_node));
+    bridge_node->interface->start_threads();
 
-    interface->start_threads();
+    return bridge_node->get_shared();
 }
 
 void BridgeNode::hbeat_cb() {
@@ -88,12 +95,10 @@ BridgeNode::~BridgeNode() {
     std::cout << "CyphalInterface exists: " << (bool(interface) ? "yes" : "no") << std::endl;
 }
 
-
 void BridgeNode::parsing_error(const std::string& error) {
     RCLCPP_FATAL_STREAM(get_logger(), "Parsing error! " << error);
     std::exit(1);
 }
-
 
 void BridgeNode::add_connection(const json& connection) {
     const std::string& type_id = connection.at("type");
@@ -203,7 +208,7 @@ void BridgeNode::add_connection(const json& connection) {
             else {
                 auto cyphal_sub = create_cyphal_to_ros_connector(
                     type_id,
-                    shared_from_this(),
+                    get_shared(),
                     ros_read_name,
                     interface,
                     read_port,
@@ -218,7 +223,7 @@ void BridgeNode::add_connection(const json& connection) {
         if (ros_direction == ROSDirection::WRITE || ros_direction == ROSDirection::BI) {
             auto ros_sub = create_ros_to_cyphal_connector(
                 type_id,
-                shared_from_this(),
+                get_shared(),
                 ros_write_name,
                 interface,
                 write_port
@@ -227,13 +232,16 @@ void BridgeNode::add_connection(const json& connection) {
                 ros_subscriptions.push_back(ros_sub.value());
                 type_found = true;
             }
+            else {
+                type_found = false;
+            }
         }
     }
     else {
         if (!has_register_name) {
             auto cyphal_response_sub = create_ros_service(
                 type_id,
-                shared_from_this(),
+                get_shared(),
                 ros_name,
                 interface,
                 write_port,
