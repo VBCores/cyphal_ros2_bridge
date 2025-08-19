@@ -14,7 +14,7 @@ def generate_launch_description():
 
     declare_config_file = DeclareLaunchArgument(
         "config_file",
-        default_value=str(examples_dir / "everything_at_once.json"),
+        default_value=str(examples_dir / "test_node.json"),
         description="Path to Cyphal-ROS2 bridge config file",
     )
 
