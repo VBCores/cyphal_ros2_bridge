@@ -29,6 +29,11 @@
 #include <uavcan/diagnostic/Record_1_1.h>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
+#include <voltbro/echo/echo_service_1_0.h>
+#include <cyphal_ros2_bridge/srv/echo.hpp>
+
+TYPE_ALIAS(EchoRequest, voltbro_echo_echo_service_Request_1_0)
+TYPE_ALIAS(EchoResponse, voltbro_echo_echo_service_Response_1_0)
 TYPE_ALIAS(Integer32, uavcan_primitive_scalar_Integer32_1_0)
 TYPE_ALIAS(Real32, uavcan_primitive_scalar_Real32_1_0)
 TYPE_ALIAS(Velocity, uavcan_si_unit_velocity_Scalar_1_0)
@@ -50,19 +55,46 @@ inline ToB translate_ros_msg(FromA);
 template <class FromA, class ToB>
 inline ToB translate_cyphal_msg(FromA, CanardRxTransfer*);
 
+// ---------- Some utils ---------------
+
+inline uavcan_primitive_String_1_0 std_to_uavcan(const std::string& str) {
+    /*
+    if (str.size() > uavcan_primitive_String_1_0_value_ARRAY_CAPACITY_) {
+        throw std::length_error("String exceeds array capacity");
+    }*/
+    uavcan_primitive_String_1_0 result{};
+    result.value.count = str.size();
+    std::memcpy(result.value.elements, str.data(), str.size());
+
+    return result;
+}
+
+inline void std_to_uavcan_inplace(uavcan_primitive_String_1_0& to, const std::string& from) {
+    /*
+    if (str.size() > uavcan_primitive_String_1_0_value_ARRAY_CAPACITY_) {
+        throw std::length_error("String exceeds array capacity");
+    }*/
+    to.value.count = from.size();
+    std::memcpy(to.value.elements, from.data(), from.size());
+}
+
+inline std::string uavcan_to_std(const uavcan_primitive_String_1_0& uavcan_string) {
+    return std::string(reinterpret_cast<const char*>(uavcan_string.value.elements), uavcan_string.value.count);
+}
+
 // ---------- HMI LED service ----------
 
 template <>
 inline LEDServiceRequest::Type translate_ros_msg(
-    const cyphal_ros2_bridge::srv::CallHMILed::Request& ros_request
+    const std::shared_ptr<cyphal_ros2_bridge::srv::CallHMILed::Request>& ros_request
 ) {
     auto cyphal_request = LEDServiceRequest::Type();
-    cyphal_request.r.value = ros_request.led.r;
-    cyphal_request.g.value = ros_request.led.g;
-    cyphal_request.b.value = ros_request.led.b;
-    cyphal_request.interface.value = ros_request.led.interface;
-    cyphal_request.duration.second = ros_request.led.duration;
-    cyphal_request.frequency.hertz = ros_request.led.frequency;
+    cyphal_request.r.value = ros_request->led.r;
+    cyphal_request.g.value = ros_request->led.g;
+    cyphal_request.b.value = ros_request->led.b;
+    cyphal_request.interface.value = ros_request->led.interface;
+    cyphal_request.duration.second = ros_request->led.duration;
+    cyphal_request.frequency.hertz = ros_request->led.frequency;
     return cyphal_request;
 }
 
@@ -79,11 +111,11 @@ inline cyphal_ros2_bridge::srv::CallHMILed::Response translate_cyphal_msg(
 
 template <>
 inline BeeperServiceRequest::Type translate_ros_msg(
-    const cyphal_ros2_bridge::srv::CallHMIBeeper::Request& ros_request
+    const std::shared_ptr<cyphal_ros2_bridge::srv::CallHMIBeeper::Request>& ros_request
 ) {
     auto cyphal_request = BeeperServiceRequest::Type();
-    cyphal_request.duration.second = ros_request.beeper.duration;
-    cyphal_request.frequency.hertz = ros_request.beeper.frequency;
+    cyphal_request.duration.second = ros_request->beeper.duration;
+    cyphal_request.frequency.hertz = ros_request->beeper.frequency;
     return cyphal_request;
 }
 
@@ -93,6 +125,26 @@ inline cyphal_ros2_bridge::srv::CallHMIBeeper::Response translate_cyphal_msg(
 ) {
     auto ros_response = cyphal_ros2_bridge::srv::CallHMIBeeper::Response();
     ros_response.accepted = cyphal_response->accepted.value;
+    return ros_response;
+}
+
+// ---------- Echo service ----------
+
+template <>
+inline EchoRequest::Type translate_ros_msg(
+    const std::shared_ptr<cyphal_ros2_bridge::srv::Echo::Request>& ros_request
+) {
+    auto cyphal_request = EchoRequest::Type();
+    std_to_uavcan_inplace(cyphal_request.ping, ros_request->ping);
+    return cyphal_request;
+}
+
+template <>
+inline cyphal_ros2_bridge::srv::Echo::Response translate_cyphal_msg(
+    const std::shared_ptr<EchoResponse::Type>& cyphal_response, CanardRxTransfer* /*transfer*/
+) {
+    auto ros_response = cyphal_ros2_bridge::srv::Echo::Response();
+    ros_response.pong = uavcan_to_std(cyphal_response->pong);
     return ros_response;
 }
 

@@ -40,6 +40,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/PowerButtons.msg"
     "srv/CallHMIBeeper.srv"
     "srv/CallHMILed.srv"
+    "srv/Echo.srv"
 )
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")

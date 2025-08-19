@@ -22,6 +22,7 @@ class CyphalServiceBackend
     , public AbstractSubscription<CyphalResponseType>
 {
 protected:
+    std::shared_ptr<rclcpp::Node> node_;
     std::map<
         CanardTransferID,
         std::optional<std::pair<
@@ -44,6 +45,7 @@ public:
         CanardNodeID target_node_id
     )
         : interface(interface)
+        , node_(node)
         , ROS2ServiceProvider<ROSType>(node, service_name)
         , AbstractSubscription<CyphalResponseType>(interface, port_id, CanardTransferKindResponse)
         , target_node_id(target_node_id)
@@ -53,7 +55,7 @@ public:
         const std::shared_ptr<typename ROSType::Request> ros_request,
         std::shared_ptr<typename ROSType::Response> ros_response
     ) override {
-        RCLCPP_DEBUG(this->get_logger(), "Got request, sending to Cyphal");
+        RCLCPP_DEBUG(node_->get_logger(), "Got request, sending to Cyphal");
 
         typename CyphalRequestType::Type cyphal_request = translate_ros_msg<
             const std::shared_ptr<typename ROSType::Request>&,
@@ -61,18 +63,18 @@ public:
         >(ros_request);
 
         CanardTransferID current_transfer_id = transfer_id;
-        RCLCPP_DEBUG(this->get_logger(), "Saving transfer_id <%u>", current_transfer_id);
+        RCLCPP_DEBUG(node_->get_logger(), "Saving transfer_id <%u>", current_transfer_id);
 
         {
             std::lock_guard<std::mutex> lock(requests_info_lock);
             requests_info[current_transfer_id] = std::nullopt;
-            interface->send_request<CyphalRequestType>(
-                &cyphal_request,
-                AbstractSubscription<CyphalResponseType>::port_id,
-                &transfer_id,
-                target_node_id
-            );
         }
+        interface->send_request<CyphalRequestType>(
+            &cyphal_request,
+            AbstractSubscription<CyphalResponseType>::port_id,
+            &transfer_id,
+            target_node_id
+        );
 
         bool is_ok = false;
         size_t wait_counter = 0;
@@ -80,7 +82,7 @@ public:
             {
                 std::lock_guard<std::mutex> lock(requests_info_lock);
                 if (!requests_info.count(current_transfer_id)) {
-                    RCLCPP_ERROR(this->get_logger(),
+                    RCLCPP_ERROR(node_->get_logger(),
                                  "Response slot for <%u> deleted before handling",
                                  current_transfer_id);
                     return;
@@ -88,7 +90,7 @@ public:
                 if (!requests_info[current_transfer_id]) {
                     // Not ready yet
                 } else {
-                    RCLCPP_DEBUG(this->get_logger(), "Translating response for <%u>", current_transfer_id);
+                    RCLCPP_DEBUG(node_->get_logger(), "Translating response for <%u>", current_transfer_id);
                     auto [cyphal_response, transfer_obj] =
                         requests_info[current_transfer_id].value();
                     *ros_response = translate_cyphal_msg<
@@ -109,7 +111,7 @@ public:
         }
 
         if (!is_ok) {
-            RCLCPP_WARN(this->get_logger(), "No response for transfer_id <%u>", current_transfer_id);
+            RCLCPP_WARN(node_->get_logger(), "No response for transfer_id <%u>", current_transfer_id);
         }
     }
 
@@ -120,17 +122,17 @@ public:
     ) override {
         CanardTransferID tid = transfer->metadata.transfer_id;
 
-        RCLCPP_DEBUG(this->get_logger(), "Got transfer_id <%u>", tid);
+        RCLCPP_DEBUG(node_->get_logger(), "Got transfer_id <%u>", tid);
         std::lock_guard<std::mutex> lock(requests_info_lock);
         if (!requests_info.count(tid)) {
-            RCLCPP_ERROR(this->get_logger(), "Response refers to non-existent or timed out transfer_id <%u>", tid);
+            RCLCPP_ERROR(node_->get_logger(), "Response refers to non-existent or timed out transfer_id <%u>", tid);
             return;
         }
         if (requests_info[tid]) {
-            RCLCPP_ERROR(this->get_logger(), "Received repeated response for transfer_id <%u>", tid);
+            RCLCPP_ERROR(node_->get_logger(), "Received repeated response for transfer_id <%u>", tid);
             return;
         }
-        RCLCPP_DEBUG(this->get_logger(), "Saving response from Cyphal for <%u>", tid);
+        RCLCPP_DEBUG(node_->get_logger(), "Saving response from Cyphal for <%u>", tid);
         requests_info[tid] = {msg, *transfer};
     }
 };
@@ -150,9 +152,10 @@ inline std::unique_ptr<TransferListener> create_ros_service(
     CanardPortID port_id,
     CanardNodeID target_id
 ) {
-    /*
-    MATCH_TYPE_SRV("HMI.Led", LEDServiceRequest, LEDServiceResponse, cyphal_ros::srv::CallHMILed)
-    */
+    MATCH_TYPE_SRV("HMI.Led", LEDServiceRequest, LEDServiceResponse, cyphal_ros2_bridge::srv::CallHMILed)
+    MATCH_TYPE_SRV("HMI.Beeper", BeeperServiceRequest, BeeperServiceResponse, cyphal_ros2_bridge::srv::CallHMIBeeper)
+    MATCH_TYPE_SRV("Echo", EchoRequest, EchoResponse, cyphal_ros2_bridge::srv::Echo)
+
     return nullptr;
 }
 
