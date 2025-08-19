@@ -121,7 +121,7 @@ Bidirectional топик с разными портами:
 
 ### 3. Запуск
 
-`rosrun cyphal_ros cyphal_ros_node _config:=/path/to/config.json`
+`ros2 run cyphal_ros2_bridge cyphal_bridge --ros-args -p "config_file:=/path/to/config.json"`
 
 ## Как добавить новый тип сообщения
 
