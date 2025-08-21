@@ -84,6 +84,7 @@ inline std::unique_ptr<IMultipleListener> create_cyphal_to_ros_connector(
     CanardNodeID source_node_id
 ) {
     MATCH_TYPE_CTR("Battery",          VBBatteryState,   sensor_msgs::msg::BatteryState)
+    MATCH_TYPE_CTR("PowerButtons",     VBPowerButtons,   cyphal_ros2_bridge::msg::PowerButtons)
     MATCH_TYPE_CTR("Float32",          Real32,           std_msgs::msg::Float32)
     MATCH_TYPE_CTR("Diagnostic",       DiagnosticRecord, diagnostic_msgs::msg::DiagnosticStatus)
     MATCH_TYPE_CTR("Angle",            Angle,            std_msgs::msg::Float32)

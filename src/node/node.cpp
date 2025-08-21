@@ -59,8 +59,14 @@ std::shared_ptr<BridgeNode> BridgeNode::create_bridge(const rclcpp::NodeOptions&
 void BridgeNode::hbeat_cb() {
     static CanardTransferID hbeat_transfer_id = 0;
 
+    double now = get_clock()->now().seconds();
+    static double count_start = -1;
+    if (count_start < 0) {
+        count_start = now;
+    }
+
     HBeat::Type heartbeat_msg = {
-        .uptime = static_cast<uint32_t>(round(get_clock()->now().seconds())),
+        .uptime = static_cast<uint32_t>(round(now - count_start)),
         .health = {uavcan_node_Health_1_0_NOMINAL},
         .mode = {uavcan_node_Mode_1_0_OPERATIONAL}
     };
