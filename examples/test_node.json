@@ -26,17 +26,6 @@
                 "type": "service",
                 "name": "/echo"
             }
-        },
-        {
-            "type": "Boolean",
-            "ros": {
-                "type": "service",
-                "name": "/node9/example.str"
-            },
-            "cyphal": {
-                "register": "example.str",
-                "node": 9
-            }
         }
     ]
 }
