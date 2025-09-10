@@ -38,6 +38,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/HMIBeeper.msg"
     "msg/HMILed.msg"
     "msg/PowerButtons.msg"
+    "msg/DriveSimpleState.msg"
     "srv/CallHMIBeeper.srv"
     "srv/CallHMILed.srv"
     "srv/Echo.srv"

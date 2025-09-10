@@ -83,14 +83,15 @@ inline std::unique_ptr<IMultipleListener> create_cyphal_to_ros_connector(
     CanardPortID port_id,
     CanardNodeID source_node_id
 ) {
-    MATCH_TYPE_CTR("Battery",          VBBatteryState,   sensor_msgs::msg::BatteryState)
-    MATCH_TYPE_CTR("PowerButtons",     VBPowerButtons,   cyphal_ros2_bridge::msg::PowerButtons)
-    MATCH_TYPE_CTR("Float32",          Real32,           std_msgs::msg::Float32)
-    MATCH_TYPE_CTR("Diagnostic",       DiagnosticRecord, diagnostic_msgs::msg::DiagnosticStatus)
-    MATCH_TYPE_CTR("Angle",            Angle,            std_msgs::msg::Float32)
-    MATCH_TYPE_CTR("AngularVelocity",  AngularVelocity,  std_msgs::msg::Float32)
-    MATCH_TYPE_CTR("Velocity",         Velocity,         std_msgs::msg::Float32)
-    MATCH_TYPE_CTR("Integer32",        Integer32,        std_msgs::msg::Int32)
+    MATCH_TYPE_CTR("Battery",          VBBatteryState,         sensor_msgs::msg::BatteryState)
+    MATCH_TYPE_CTR("PowerButtons",     VBPowerButtons,         cyphal_ros2_bridge::msg::PowerButtons)
+    MATCH_TYPE_CTR("Float32",          Real32,                 std_msgs::msg::Float32)
+    MATCH_TYPE_CTR("Diagnostic",       DiagnosticRecord,       diagnostic_msgs::msg::DiagnosticStatus)
+    MATCH_TYPE_CTR("Angle",            Angle,                  std_msgs::msg::Float32)
+    MATCH_TYPE_CTR("AngularVelocity",  AngularVelocity,        std_msgs::msg::Float32)
+    MATCH_TYPE_CTR("Velocity",         Velocity,               std_msgs::msg::Float32)
+    MATCH_TYPE_CTR("Integer32",        Integer32,              std_msgs::msg::Int32)
+    MATCH_TYPE_CTR("DriveStateSimple", CyphalDriveSimpleState, cyphal_ros2_bridge::msg::DriveSimpleState)
 
     return std::unique_ptr<IMultipleListener>(nullptr);
 }

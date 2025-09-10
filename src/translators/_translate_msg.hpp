@@ -32,6 +32,9 @@
 #include <voltbro/echo/echo_service_1_0.h>
 #include <cyphal_ros2_bridge/srv/echo.hpp>
 
+#include <voltbro/foc/state_simple_1_0.h>
+#include <cyphal_ros2_bridge/msg/drive_simple_state.hpp>
+
 TYPE_ALIAS(EchoRequest, voltbro_echo_echo_service_Request_1_0)
 TYPE_ALIAS(EchoResponse, voltbro_echo_echo_service_Response_1_0)
 TYPE_ALIAS(Integer32, uavcan_primitive_scalar_Integer32_1_0)
@@ -46,6 +49,7 @@ TYPE_ALIAS(LEDServiceRequest, voltbro_hmi_led_service_Request_1_0)
 TYPE_ALIAS(LEDServiceResponse, voltbro_hmi_led_service_Response_1_0)
 TYPE_ALIAS(BeeperServiceRequest, voltbro_hmi_beeper_service_Request_1_0)
 TYPE_ALIAS(BeeperServiceResponse, voltbro_hmi_beeper_service_Response_1_0)
+TYPE_ALIAS(CyphalDriveSimpleState, voltbro_foc_state_simple_1_0)
 
 namespace CyphalROS2 {
 
@@ -80,6 +84,24 @@ inline void std_to_uavcan_inplace(uavcan_primitive_String_1_0& to, const std::st
 
 inline std::string uavcan_to_std(const uavcan_primitive_String_1_0& uavcan_string) {
     return std::string(reinterpret_cast<const char*>(uavcan_string.value.elements), uavcan_string.value.count);
+}
+
+// -------- Drive State Simple ---------
+
+template <>
+inline cyphal_ros2_bridge::msg::DriveSimpleState translate_cyphal_msg(
+    const std::shared_ptr<CyphalDriveSimpleState::Type>& cyphal_msg, CanardRxTransfer* /*transfer*/
+) {
+    auto ros_msg = cyphal_ros2_bridge::msg::DriveSimpleState();
+
+    ros_msg.angle = cyphal_msg->angle.radian;
+    ros_msg.velocity = cyphal_msg->velocity.radian_per_second;
+    ros_msg.current = cyphal_msg->current.ampere;
+    ros_msg.bus_voltage = cyphal_msg->bus_voltage.volt;
+    ros_msg.current_coil_voltage = cyphal_msg->current_coil_voltage.volt;
+    ros_msg.has_fault = cyphal_msg->has_fault.value;
+
+    return ros_msg;
 }
 
 // ---------- HMI LED service ----------
@@ -294,11 +316,12 @@ inline diagnostic_msgs::msg::DiagnosticStatus translate_cyphal_msg(
 ) {
     diagnostic_msgs::msg::DiagnosticStatus ros_diagnostic;
 
-    ros_diagnostic.name = (boost::format("Node %1%") % transfer->metadata.remote_node_id).str();
-    ros_diagnostic.hardware_id = (boost::format("%1%") % transfer->metadata.remote_node_id).str();
+    int node_id_for_print = static_cast<int>(transfer->metadata.remote_node_id);
+    ros_diagnostic.name = (boost::format("Node %1$d") % node_id_for_print).str();
+    ros_diagnostic.hardware_id = (boost::format("%1$d") % node_id_for_print).str();
     ros_diagnostic.message = reinterpret_cast<const char*>(diagnostic->text.elements);
 
-    uint8_t severity;
+    unsigned char severity;
     switch (diagnostic->severity.value) {
         case uavcan_diagnostic_Severity_1_0_TRACE:
         case uavcan_diagnostic_Severity_1_0_DEBUG:

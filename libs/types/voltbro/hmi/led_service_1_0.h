@@ -8,8 +8,8 @@
 // are named with an underscore at the end, like foo_bar_().
 //
 // Generator:     nunavut-2.3.1 (serialization was enabled)
-// Source file:   /home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl
-// Generated at:  2024-03-29 15:48:40.080133 UTC
+// Source file:   /home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl
+// Generated at:  2025-09-08 16:00:12.875160 UTC
 // Is deprecated: no
 // Fixed port-ID: None
 // Full name:     voltbro.hmi.led_service
@@ -17,13 +17,13 @@
 //
 // Platform
 //     python_implementation:  CPython
-//     python_version:  3.10.12
+//     python_version:  3.12.3
 //     python_release_level:  final
-//     python_build:  ('main', 'Nov 20 2023 15:14:05')
-//     python_compiler:  GCC 11.4.0
+//     python_build:  ('main', 'Jun 18 2025 17:59:45')
+//     python_compiler:  GCC 13.3.0
 //     python_revision:
 //     python_xoptions:  {}
-//     runtime_platform:  Linux-5.15.0-1049-raspi-aarch64-with-glibc2.35
+//     runtime_platform:  Linux-6.8.0-78-generic-x86_64-with-glibc2.39
 //
 // Language Options
 //     target_endianness:  little
@@ -44,19 +44,19 @@
 #include <uavcan/si/unit/frequency/Scalar_1_0.h>
 
 static_assert( NUNAVUT_SUPPORT_LANGUAGE_OPTION_TARGET_ENDIANNESS == 434322821,
-              "/home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
+              "/home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
               "different language options. This is dangerous and therefore not allowed." );
 static_assert( NUNAVUT_SUPPORT_LANGUAGE_OPTION_OMIT_FLOAT_SERIALIZATION_SUPPORT == 0,
-              "/home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
+              "/home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
               "different language options. This is dangerous and therefore not allowed." );
 static_assert( NUNAVUT_SUPPORT_LANGUAGE_OPTION_ENABLE_SERIALIZATION_ASSERTS == 0,
-              "/home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
+              "/home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
               "different language options. This is dangerous and therefore not allowed." );
 static_assert( NUNAVUT_SUPPORT_LANGUAGE_OPTION_ENABLE_OVERRIDE_VARIABLE_ARRAY_CAPACITY == 0,
-              "/home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
+              "/home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
               "different language options. This is dangerous and therefore not allowed." );
 static_assert( NUNAVUT_SUPPORT_LANGUAGE_OPTION_CAST_FORMAT == 2368206204,
-              "/home/pi/cyphal-types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
+              "/home/brover/ws/types/voltbro/hmi/led_service.1.0.dsdl is trying to use a serialization library that was compiled with "
               "different language options. This is dangerous and therefore not allowed." );
 
 #ifdef __cplusplus
