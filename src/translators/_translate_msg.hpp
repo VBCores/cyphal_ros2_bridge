@@ -28,6 +28,7 @@
 
 #include <uavcan/diagnostic/Record_1_1.h>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
 
 #include <voltbro/echo/echo_service_1_0.h>
 #include <cyphal_ros2_bridge/srv/echo.hpp>
@@ -343,6 +344,25 @@ inline diagnostic_msgs::msg::DiagnosticStatus translate_cyphal_msg(
     ros_diagnostic.level = severity;
 
     return ros_diagnostic;
+}
+
+template <>
+inline diagnostic_msgs::msg::DiagnosticArray translate_cyphal_msg(
+    const std::shared_ptr<DiagnosticRecord::Type>& diagnostic,
+    CanardRxTransfer* transfer
+) {
+    diagnostic_msgs::msg::DiagnosticArray ros_diagnostic_array;
+    ros_diagnostic_array.header.frame_id = "base_link";
+    ros_diagnostic_array.header.stamp = rclcpp::Clock().now();
+
+    ros_diagnostic_array.status.emplace_back(std::move(
+        translate_cyphal_msg<
+            const std::shared_ptr<DiagnosticRecord::Type>&,
+            diagnostic_msgs::msg::DiagnosticStatus
+        >(diagnostic, transfer)
+    ));
+
+    return ros_diagnostic_array;
 }
 
 }

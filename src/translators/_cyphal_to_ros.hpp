@@ -87,6 +87,7 @@ inline std::unique_ptr<IMultipleListener> create_cyphal_to_ros_connector(
     MATCH_TYPE_CTR("PowerButtons",     VBPowerButtons,         cyphal_ros2_bridge::msg::PowerButtons)
     MATCH_TYPE_CTR("Float32",          Real32,                 std_msgs::msg::Float32)
     MATCH_TYPE_CTR("Diagnostic",       DiagnosticRecord,       diagnostic_msgs::msg::DiagnosticStatus)
+    MATCH_TYPE_CTR("DiagnosticArray",  DiagnosticRecord,       diagnostic_msgs::msg::DiagnosticArray)
     MATCH_TYPE_CTR("Angle",            Angle,                  std_msgs::msg::Float32)
     MATCH_TYPE_CTR("AngularVelocity",  AngularVelocity,        std_msgs::msg::Float32)
     MATCH_TYPE_CTR("Velocity",         Velocity,               std_msgs::msg::Float32)
